@@ -12,26 +12,25 @@ import random
 
 # import an image from a filename
 # returns an image matrix
-def import_image(filename, brightness=True, red=False, green=False, blue=False):
-    if int(brightness) + int(red) + int(green) + int(blue) != 1:
-        raise ValueError("Exactly one of brightness, red, green, or blue must be true")
-
+def import_image(filename, channel='brightness'):
     pic = imageio.imread(filename)
 
     if len(pic.shape) == 2:
         return pic
 
-    if (brightness):
+    if (channel == 'brightness'):
         return np.array([ [ int(0.2126*x[0] + 0.7152*x[1] + 0.0722*x[2]) for x in row ] for row in pic ])
 
-    if (red):
+    if (channel == 'red'):
         return pic[:,:,0]
 
-    if (green):
+    if (channel == 'green'):
         return pic[:,:,1]
 
-    if (blue):
+    if (channel == 'blue'):
         return pic[:,:,2]
+
+    raise ValueError("Value of string parameter 'channel' must be 'brightness', 'red', 'green', or 'blue'")
 
 # take an image and turn it into a matrix of probabilities.
 # resolution is a tuple, and the image is a matrix of 0-255 values.
@@ -120,7 +119,7 @@ def is_door(p, q, imageshape):
 # the boundary edges will all have minimum weight (of -1), except for the entry door
 # WARNING: Nonzero randomness may result in an unsolvable maze.
 # However, zero randomness does make the maze look homogeneous near the walls.
-def adjacency_matrix(vertices, imageshape, euclidean=True, randomness=0.1):
+def adjacency_matrix(vertices, imageshape, l1=False, randomness=0.1):
     mat = None
     distance = None
     maxnum = None
@@ -128,10 +127,10 @@ def adjacency_matrix(vertices, imageshape, euclidean=True, randomness=0.1):
     mat = np.zeros((n,n))
     maxnum = float('inf')
 
-    if euclidean:
-        distance = euclidean_distance
-    else:
+    if l1:
         distance = l1_distance
+    else:
+        distance = euclidean_distance
 
     for i in range(n):
         for j in range(n):
@@ -248,7 +247,7 @@ def translate_point(p, borderwidth, wallwidth, hallwaywidth):
 
 # draw a graph. vertices is a list of points, edges is a list of pairs of points.
 # NOTE: savefilename should not include a .gif extension. That extension will be added automatically.
-def draw_graph(vertices, edges, title='maze', wallcolor='black', bgcolor='white', wallwidth=5, hallwaywidth=8, borderwidth=10, savefilename=None):
+def draw_graph(vertices, edges, title='maze', wallcolor='black', bgcolor='white', wallwidth=5, hallwaywidth=8, borderwidth=20, savefilename=None):
     max_x_value = max([ v[1] for v in vertices])
     max_y_value = max([ v[0] for v in vertices])
 
@@ -280,50 +279,75 @@ def draw_graph(vertices, edges, title='maze', wallcolor='black', bgcolor='white'
     window.close()
 
 
+########################################
+# WHEN THIS FILE IS RUN AS A SCRIPT... #
+########################################
 
-
-####################################################
-
-
-# TESTING ZONE
-
+import sys
+import ast
 import time
 
-filename = '~/Documents/Python Projects/maze/pictures/flower_large.jpeg'
-imageshape = (50,100)
+# time the program in splits
+def timesplit(title, titlewidth=30, decimalplaces=5):
+    global last_checkpoint
+    this_checkpoint = time.time()
 
-start = time.time()
+    if verbose:
+        print(title, 'took', ' '*(titlewidth-len(title)), ('{:.'+str(decimalplaces)+'f}').format(this_checkpoint - last_checkpoint), 'seconds')
 
-image = import_image(filename)
-checkpoint1 = time.time()
-print('import_image took                   ', checkpoint1 - start)
+    last_checkpoint = this_checkpoint
 
-probs = probabilities_from_image(image, imageshape, invert=False)
-checkpoint2 = time.time()
-print('probabilities_from_image took       ', checkpoint2 - checkpoint1)
 
-vim = random_vertex_indicator_matrix(probs)
-checkpoint3 = time.time()
-print('random_vertex_indicator_matrix took ', checkpoint3 - checkpoint2)
 
-vertices = get_vertices(vim)
-checkpoint4 = time.time()
-print('get_vertices took                   ', checkpoint4 - checkpoint3)
 
-graph = adjacency_matrix(vertices, imageshape, euclidean=True)
-checkpoint5 = time.time()
-print('adjacency_matrix took               ', checkpoint5 - checkpoint4)
 
-parent = primMST(graph)
-checkpoint6 = time.time()
-print('primMST took                        ', checkpoint6 - checkpoint5)
+boolean_args = ['-l1', 'invert']
+string_args  = ['-in', '-out', '-channel', '-wallcolor', '-bgcolor']
+int_args     = ['-wallwidth', '-hallwaywidth', '-borderwidth']
+other_args   = {
+        '-resolution' : (is_pair_of_positive_ints, 'a pair of positive integers'),
+        '-randomness' : (is_positive_float, 'a positive real number')
+    }
 
-tree = tree_from_parent(parent, vertices)
-checkpoint7 = time.time()
-print('tree_from_parent took               ', checkpoint7 - checkpoint6)
 
-remove_other_door(tree, imageshape)
-checkpoint8 = time.time()
-print('remove_other_door took              ', checkpoint8 - checkpoint7)
+# default to first arg being infile and second arg being outfile
 
-draw_graph(vertices, tree, borderwidth=20, savefilename='~/Documents/maze/mazes/flower')
+
+# MAIN CODE BLOCK
+if __name__ == '__main__':
+
+    # PARSING ARGUMENTS
+
+    filename = '~/Documents/Python_Projects/maze/pictures/lenna.png'
+    imageshape = (50,50)
+    verbose = True
+
+    # ACTUALLY RUNNING THE PROGRAM
+
+    last_checkpoint = time.time()
+
+    image = import_image(filename)
+    timesplit('import_image')
+
+    probs = probabilities_from_image(image, imageshape, invert=False)
+    timesplit('probabilities_from_image')
+
+    vim = random_vertex_indicator_matrix(probs)
+    timesplit('random_vertex_indicator_matrix')
+
+    vertices = get_vertices(vim)
+    timesplit('get_vertices')
+
+    graph = adjacency_matrix(vertices, imageshape, l1=False)
+    timesplit('adjacency_matrix')
+
+    parent = primMST(graph)
+    timesplit('primMST')
+
+    tree = tree_from_parent(parent, vertices)
+    timesplit('tree_from_parent')
+
+    remove_other_door(tree, imageshape)
+    timesplit('remove_other_door')
+
+    draw_graph(vertices, tree, borderwidth=20, savefilename='~/Documents/Python_Projects/maze/mazes/tinyflower')
