@@ -6,10 +6,9 @@ Making a maze that from an n x m image, will take O(n<sup>2</sup> m<sup>2</sup>)
 
 Here are some example inputs and outputs:
 
-| Input | Output |
+| Input | Output <img width=100000/> |
 | :---: | :---: |
-| <img width=200/> | <img width=10000/> |
-| ![raised fist image](./examples/raised_fist.jpg){width=200px} | ![raised fist maze](./examples/raised_fist_maze.png) |
+| ![raised fist image](./examples/raised_fist.jpg) | ![raised fist maze](./examples/raised_fist_maze.png) |
 | ![flower image](./examples/flower_large.jpeg) | ![flower maze](./examples/flower_maze.png) |
 | ![iroh image](./examples/iroh_highcontrast.jpeg) | ![iroh maze](./examples/iroh_maze.png) |
 
