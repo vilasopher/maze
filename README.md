@@ -8,7 +8,7 @@ Here are some example inputs and outputs:
 
 | Input | Output |
 | :---: | :---: |
-| <img width=200/> | <img width=500/> |
+| <img width=200/> | <img width=10000/> |
 | ![raised fist image](./examples/raised_fist.jpg){width=200px} | ![raised fist maze](./examples/raised_fist_maze.png) |
 | ![flower image](./examples/flower_large.jpeg) | ![flower maze](./examples/flower_maze.png) |
 | ![iroh image](./examples/iroh_highcontrast.jpeg) | ![iroh maze](./examples/iroh_maze.png) |
