@@ -298,7 +298,7 @@ def timesplit(title, titlewidth=30, decimalplaces=5):
     last_checkpoint = this_checkpoint
 
 def is_pair_of_positive_ints(a):
-    if type(a) != tuple:
+    if type(a) != list:
         return False
     if len(a) != 2:
         return False
@@ -309,20 +309,31 @@ def is_pair_of_positive_ints(a):
 
     return True
 
-def is_nonnegative_float(a):
-    if type(a) != float:
+def is_nonnegative_real(a):
+    if type(a) != float and type(a) != int:
         return False
     if a < 0:
         return False
 
     return True
 
-boolean_args = ['-l1', 'invert']
+def is_positive_int(a):
+    if type(a) != int:
+        return False
+    if a <= 0:
+        return False
+
+    return True
+
+def print_help_message():
+    pass
+
+boolean_args = ['-l1', '-invert', '-v']
 string_args  = ['-in', '-out', '-channel', '-wallcolor', '-bgcolor']
 int_args     = ['-wallwidth', '-hallwaywidth', '-borderwidth']
 other_args   = {
         '-resolution' : (is_pair_of_positive_ints, 'a pair of positive integers'),
-        '-randomness' : (is_nonnegative_float, 'a nonnegative real number')
+        '-randomness' : (is_nonnegative_real, 'a nonnegative real number')
     }
 
 
@@ -334,38 +345,133 @@ if __name__ == '__main__':
 
     # DEFAULT ARGUMENTs
 
-    l1 = False
-    invert = False
+    arg_dict = {
+            '-l1' : False,
+            '-invert' : False,
+            '-v' : False,
+            
+            '-in' : None,
+            '-out' : None,
+            '-channel' : 'brightness',
+            '-wallcolor' : 'black',
+            '-bgcolor' : 'white',
+            
+            '-wallwidth' : 5,
+            '-hallwaywidth' : 8,
+            '-borderwidth' : 20,
+            
+            '-resolution' : None,
+            '-randomness' : 0.1
+        }
 
-    infile = None
-    outfile = None
-    channel = 'brightness'
-    wallcolor = 'black'
-    bgcolor = 'white'
-    
-    wallwidth = 5
-    hallwaywidth = 8
-    borderwidth = 20
 
-    resolution = None
-    randomness = 0.1
-    
+    # PARSE USER ARGUMENTS
 
-    # PARSING ARGUMENTS
+    arguments = sys.argv[1:]
 
-    filename = '~/Documents/Python_Projects/maze/pictures/lenna.png'
-    imageshape = (50,50)
-    verbose = True
+    arguments_lower = [ x.lower() for x in arguments ]
 
-    # ACTUALLY RUNNING THE PROGRAM
+    if '-help' in arguments_lower or '--help' in arguments_lower or 'help' in arguments_lower:
+        print_help_message()
+        sys.exit()
+
+    for arg in boolean_args:
+        if arg in arguments:
+            index = arguments.index(arg)
+            del arguments[index]
+
+            arg_dict[arg] = True
+
+    for arg in string_args:
+        if arg in arguments:
+            index = arguments.index(arg)
+            del arguments[index]
+
+            if index >= len(arguments):
+                print('Error: no argument given for', arg)
+                sys.exit()
+
+            arg_dict[arg] = arguments[index]
+            del arguments[index]
+
+    for arg in int_args:
+        if arg in arguments:
+            index = arguments.index(arg)
+            del arguments[index]
+
+            if index >= len(arguments):
+                print('Error: no argument given for', arg)
+                sys.exit()
+
+            try:
+                arg_dict[arg] = ast.literal_eval(arguments[index])
+            except:
+                print('Error: couldn\'t parse argument to', arg)
+                sys.exit()
+
+            del arguments[index]
+
+            if not is_positive_int(arg_dict[arg]):
+                print('Error:', arg, 'argument,', arg_dict[arg], 'is not a positive integer')
+                sys.exit()
+                
+    for arg in other_args:
+        if arg in arguments:
+            index = arguments.index(arg)
+            del arguments[index]
+
+            if index >= len(arguments):
+                print('Error: no argument given for', arg)
+                sys.exit()
+
+            try:
+                arg_dict[arg] = ast.literal_eval(arguments[index])
+            except:
+                print('Error: couldn\'t parse argument to', arg)
+                sys.exit()
+
+            del arguments[index]
+
+            if not other_args[arg][0](arg_dict[arg]):
+                print('Error:', arg, 'argument,', arg_dict[arg], ', is not', other_args[arg][1])
+                sys.exit()
+
+    if arg_dict['-in'] == None:
+        if len(arguments) < 1:
+            print('Error: no input filename given')
+            sys.exit()
+        else:
+            arg_dict['-in'] = arguments[0]
+            del arguments[0]
+
+    if arg_dict['-out'] == None and len(arguments) > 0:
+        arg_dict['-out'] = arguments[0]
+        del arguments[0]
+
+    if len(arguments) > 0:
+        print('Error: extraneous arguments given.\nType \'python maze.py -help\' for help.')
+        sys.exit()
+
+    if arg_dict['-resolution'] != None:
+        arg_dict['-resolution'] = (arg_dict['-resolution'][1], arg_dict['-resolution'][0])
+
+
+    # ACTUALLY RUN THE PROGRAM
+
+    verbose = arg_dict['-v']
 
     last_checkpoint = time.time()
 
-    image = import_image(filename)
+    image = import_image(arg_dict['-in'], channel=arg_dict['-channel'])
     timesplit('import_image')
 
-    probs = probabilities_from_image(image, imageshape, invert=False)
+    probs = probabilities_from_image(image, resolution=arg_dict['-resolution'], invert=arg_dict['-invert'])
     timesplit('probabilities_from_image')
+
+    if arg_dict['-resolution'] == None:
+        imageshape = probs.shape
+    else:
+        imageshape = arg_dict['-resolution']
 
     vim = random_vertex_indicator_matrix(probs)
     timesplit('random_vertex_indicator_matrix')
@@ -373,9 +479,9 @@ if __name__ == '__main__':
     vertices = get_vertices(vim)
     timesplit('get_vertices')
 
-    graph = adjacency_matrix(vertices, imageshape, l1=False)
+    graph = adjacency_matrix(vertices, imageshape, l1=arg_dict['-l1'], randomness=arg_dict['-randomness'])
     timesplit('adjacency_matrix')
-
+    
     parent = primMST(graph)
     timesplit('primMST')
 
@@ -385,4 +491,4 @@ if __name__ == '__main__':
     remove_other_door(tree, imageshape)
     timesplit('remove_other_door')
 
-    draw_graph(vertices, tree, borderwidth=20, savefilename='~/Documents/Python_Projects/maze/mazes/tinyflower')
+    draw_graph(vertices, tree, title=('maze generated from ' + arg_dict['-in']), wallcolor=arg_dict['-wallcolor'], bgcolor=arg_dict['-bgcolor'], wallwidth=arg_dict['-wallwidth'], hallwaywidth=arg_dict['-hallwaywidth'], borderwidth=arg_dict['-borderwidth'], savefilename=arg_dict['-out'])
