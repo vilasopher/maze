@@ -297,16 +297,32 @@ def timesplit(title, titlewidth=30, decimalplaces=5):
 
     last_checkpoint = this_checkpoint
 
+def is_pair_of_positive_ints(a):
+    if type(a) != tuple:
+        return False
+    if len(a) != 2:
+        return False
+    if type(a[0]) != int or type(a[1]) != int:
+        return False
+    if a[0] <= 0 or a[1] <= 0:
+        return False
 
+    return True
 
+def is_nonnegative_float(a):
+    if type(a) != float:
+        return False
+    if a < 0:
+        return False
 
+    return True
 
 boolean_args = ['-l1', 'invert']
 string_args  = ['-in', '-out', '-channel', '-wallcolor', '-bgcolor']
 int_args     = ['-wallwidth', '-hallwaywidth', '-borderwidth']
 other_args   = {
         '-resolution' : (is_pair_of_positive_ints, 'a pair of positive integers'),
-        '-randomness' : (is_positive_float, 'a positive real number')
+        '-randomness' : (is_nonnegative_float, 'a nonnegative real number')
     }
 
 
@@ -315,6 +331,25 @@ other_args   = {
 
 # MAIN CODE BLOCK
 if __name__ == '__main__':
+
+    # DEFAULT ARGUMENTs
+
+    l1 = False
+    invert = False
+
+    infile = None
+    outfile = None
+    channel = 'brightness'
+    wallcolor = 'black'
+    bgcolor = 'white'
+    
+    wallwidth = 5
+    hallwaywidth = 8
+    borderwidth = 20
+
+    resolution = None
+    randomness = 0.1
+    
 
     # PARSING ARGUMENTS
 
