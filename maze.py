@@ -328,7 +328,7 @@ def is_positive_int(a):
 def print_help_message():
     print('maze.py is a program that creates a maze that looks like any picture.')
     print('WARNING: this program is very slow!')
-    print('Making a maze that from an n x m image, will take O(n^2 m^2) time!')
+    print('Making a maze that from an n x m image will take O(n^2 m^2) time!')
     print('Here are some examples of typical usage:')
     print()
     print('\tpython maze.py lenna.png -resolution [64,64] -out lenna_maze')

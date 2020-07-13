@@ -3,7 +3,7 @@
 maze.py is a program that creates a maze that looks like any picture.
 
 WARNING: this program is very slow!
-Making a maze that from an n x m image, will take O(n<sup>2</sup> m<sup>2</sup>) time!
+Making a maze that from an n x m image will take O(n<sup>2</sup> m<sup>2</sup>) time!
 
 Here are some example inputs and outputs:
 
