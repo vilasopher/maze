@@ -337,9 +337,6 @@ other_args   = {
     }
 
 
-# default to first arg being infile and second arg being outfile
-
-
 # MAIN CODE BLOCK
 if __name__ == '__main__':
 
