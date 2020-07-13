@@ -1,13 +1,14 @@
 # maze
 
 maze.py is a program that creates a maze that looks like any picture.
+
 WARNING: this program is very slow!
 Making a maze that from an n x m image, will take O(n<sup>2</sup> m<sup>2</sup>) time!
 
 Here are some example inputs and outputs:
 
-| Input <img width=1/> | Output <img width=100000000/> |
-| :---: | :---: |
+| Input | Output |
+| :---: | :----------------: |
 | ![raised fist image](./examples/raised_fist.jpg) | ![raised fist maze](./examples/raised_fist_maze.png) |
 | ![flower image](./examples/flower_large.jpeg) | ![flower maze](./examples/flower_maze.png) |
 | ![iroh image](./examples/iroh_highcontrast.jpeg) | ![iroh maze](./examples/iroh_maze.png) |
