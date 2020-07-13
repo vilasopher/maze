@@ -7,10 +7,10 @@ Making a maze that from an n x m image, will take O(n^2 m^2) time!
 Here are some example inputs and outputs:
 
 ![raised fist image]
-(examples/raised_fist.jpg)
+(./examples/raised_fist.jpg)
 
 ![raised fist maze]
-(examples/raised_fist_maze.png)
+(./examples/raised_fist_maze.png)
 
 
 
