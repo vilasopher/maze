@@ -9,8 +9,8 @@ Here are some example inputs and outputs:
 
 | Input | Output |
 | :---: | :---: |
-| ![raised fist image](./examples/raised_fist.jpg) | ![raised fist maze](./examples/raised_fist_maze.png) <img width=10000000px/> (this maze was created with the <code>-invert</code> option) |
 | ![flower image](./examples/flower_large.jpeg) | ![flower maze](./examples/flower_maze.png) |
+| ![raised fist image](./examples/raised_fist.jpg) | ![raised fist maze](./examples/raised_fist_maze.png) <img width=10000000px/> (this maze was created with the <code>-invert</code> option) |
 | ![iroh image](./examples/iroh_highcontrast.jpeg) <img width=100000px/> (this image was edited for higher contrast and brightness) | ![iroh maze](./examples/iroh_maze.png) |
 
 Here are some examples of typical usage:
